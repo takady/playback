@@ -1,10 +1,10 @@
 # Playback
 
-TODO: Write a gem description
+generate and execute http request from access log
 
 ## Installation
 
-Add this line to your application's Gemfile:
+generate and execute http request from access log
 
 ```ruby
 gem 'playback'
@@ -20,7 +20,14 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'playback'
+
+playback = Playback.new('/path/to/access.log', 'combined')
+playback.request         # execute only one http request
+playback.request_all     # execute whole http request
+
+```
 
 ## Contributing
 
