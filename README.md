@@ -23,10 +23,10 @@ Or install it yourself as:
 ```ruby
 require 'playback'
 
-playback = Playback.new('/path/to/access.log', 'combined')
+# support log format: apache(common & combined)
+playback = Playback.new('/path/to/access.log', 'apache')
 playback.request         # execute only one http request
 playback.request_all     # execute whole http request
-
 ```
 
 ## Contributing
