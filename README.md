@@ -4,18 +4,6 @@ generate and execute http request from access log
 
 ## Installation
 
-generate and execute http request from access log
-
-```ruby
-gem 'playback'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
     $ gem install playback
 
 ## Usage
@@ -24,9 +12,9 @@ Or install it yourself as:
 require 'playback'
 
 # support log format: apache(common & combined)
-playback = Playback.new('/path/to/access.log', 'apache')
-playback.request         # execute only one http request
-playback.request_all     # execute whole http request
+request = Playback::Request.new('/path/to/access.log', 'apache')
+request.exec        # execute only one http request
+request.exec_all    # execute whole http request
 ```
 
 ## Contributing
