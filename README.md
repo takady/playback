@@ -8,15 +8,26 @@ generate and execute http request from access log
 
 ## Usage
 
-```ruby
-require 'playback/request'
+### as a command line tool
+```sh
+playback 'http://httpbin.org' /path/to/access.log
+#=> { "method": "GET", "path": "/get", status: 200 }
+#=> { "method": "POST", "path": "/post?hoge=1", status: 200 }
+#=> { "method": "PUT", "path": "/put?foo=bar", status: 200 }
+#=> :
+#=> :
+```
 
-# initialize with base-uri, log file path and log file format
-# supported log format: apache(common & combined)
-request = Playback::Request.new('http://httpbin.org', '/path/to/access.log', 'combined')
-req = request.run        # execute http request from whole access log file
-req.class                # Array
-req[0].class             # Net::HTTPOK or something of the child class of Net:HTTP
+### as a part of code
+```ruby
+require 'playback'
+
+p = Playback::Request.new('http://httpbin.org')
+File.open '/path/to/access.log' do |file|
+  file.each_line do |line|
+    puts p.run(line)   #=> { "method": "GET", "path": "/get", status: 200 }
+  end
+end
 ```
 
 ## Contributing
