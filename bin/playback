@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+require 'playback/request'
+
+@base_uri = ARGV[0]
+@log_file = ARGV[1]
+p = Playback::Request.new(@base_uri)
+
+begin
+  File.open @log_file do |file|
+    file.each_line do |line|
+      puts p.run(line)
+    end
+  end
+rescue Interrupt
+  puts "\nexiting..."
+rescue Exception => e
+  puts e
+end
