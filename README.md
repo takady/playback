@@ -9,12 +9,14 @@ generate and execute http request from access log
 ## Usage
 
 ```ruby
-require 'playback'
+require 'playback/request'
 
-# support log format: apache(common & combined)
-request = Playback::Request.new('/path/to/access.log', 'apache')
-request.exec        # execute only one http request
-request.exec_all    # execute whole http request
+# initialize with base-uri, log file path and log file format
+# supported log format: apache(common & combined)
+request = Playback::Request.new('http://httpbin.org', '/path/to/access.log', 'combined')
+req = request.run        # execute http request from whole access log file
+req.class                # Array
+req[0].class             # Net::HTTPOK or something of the child class of Net:HTTP
 ```
 
 ## Contributing

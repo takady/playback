@@ -1,55 +1,51 @@
 require 'net/http'
+require 'apache_log/parser'
 
 module Playback
   class Request
+    DEFAULT_CONTENT_TYPE = 'application/text'
+    DEFAULT_USER_AGENT = 'From Playback rubygems'
 
     def initialize(uri, log, format)
       @uri = uri
       @log = log
       @format = format
+      @parser = ApacheLog::Parser
     end
 
-    def exec
-      run
-    end
-
-    def exec_all
-      run 'all'
-    end
-
-    def run(times='')
+    def run
+      responses = []
       File.open @log do |file|
         file.each_line do |line|
-          puts request(parse_log(line))
-          break unless times == 'all'
+          parsed_line = @parser.parse(line.chomp, @format)
+           response = request(parsed_line[:request][:method], parsed_line[:request][:path],
+                               parsed_line[:referer] ||= '', parsed_line[:user_agent] ||= DEFAULT_USER_AGENT)
+           responses.push response
         end
       end
+      responses
     end
 
-    def parse_log(line)
-      pattern_str = '.+\s+.+\s+.+\s+\[.+\]\s+"(\S+\s\S+\s\S+)"\s+.+'
-      pattern = /^#{pattern_str}$/
+    def request(method, path, referer='', user_agent=DEFAULT_USER_AGENT)
+      uri = URI.parse(@uri + path)
+      http = Net::HTTP.new(uri.host, uri.port)
+      query = uri.query.nil? ? '' : uri.query
+      data = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
 
-      matched = parse_request(pattern.match(line).to_a[1])
-      matched[:path]
-    end
-
-    def parse_request(str)
-      method, path, protocol = str.split
-      {
-        method:   method,
-        path:     path,
-        protocol: protocol
-      }
-    end
-
-    def request(path)
-      url = URI.parse(@uri + path)
-      req = Net::HTTP::Get.new(url.path)
-      res = Net::HTTP.start(url.host, url.port) do |http|
-        http.request(req)
+      case method
+      when 'GET'
+        http.get(uri.path + query, data)
+      when 'POST'
+        http.post(uri.path, query, data)
+      when 'PUT'
+        http.put(uri.path, query, data)
+      when 'DELETE'
+        http.delete(uri.path + query, data)
+      when 'PATCH'
+        http.patch(uri.path, query, data)
+      else
+        # error
       end
-      res.body
     end
 
   end
