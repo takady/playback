@@ -16,11 +16,11 @@ module Playback
         fields = combined_fields
         pattern = /^#{combined_pattern}$/
       else
-        raise "format error\n no such format: <#{format}> \n"
+        raise "no such format: <#{format}>"
       end
 
       matched = pattern.match(line)
-      raise "parse error\n at line: <#{line}> \n" if matched.nil?
+      raise "parse error at line: <#{line}>" if matched.nil?
 
       generate_hash(fields, matched.to_a)
     end

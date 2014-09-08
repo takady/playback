@@ -31,39 +31,49 @@ module Playback
       end
 
       res
+
+    rescue => e
+      e.message
     end
 
     def parse(line)
       begin
         @parser.parse(line.chomp, 'combined')
-      rescue Exception => e
+      rescue
         begin
           @parser.parse(line.chomp, 'common')
-        rescue Exception => e
-          puts 'error'
+        rescue => e
+          raise e
         end
       end
     end
 
     def request(method, path, referer, user_agent)
-      uri = URI.parse(@base_uri + path)
+      begin
+        uri = URI.parse(@base_uri + path)
+      rescue
+        raise "it can not be recognized as a uri: <#{@base_uri + path}>"
+      end
+
       http = Net::HTTP.new(uri.host, uri.port)
       query = uri.query.nil? ? '' : uri.query
       data = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
 
       case method
       when 'GET'
-        http.get(uri.path + query, data)
+        http.get(uri.path + '?' + query, data)
       when 'POST'
         http.post(uri.path, query, data)
       when 'PUT'
         http.put(uri.path, query, data)
       when 'DELETE'
-        http.delete(uri.path + query, data)
+        http.delete(uri.path + '?' + query, data)
       when 'PATCH'
         http.patch(uri.path, query, data)
+      when 'HEAD'
+        http.head(uri.path + '?' + query, data)
       else
-        # error
+        raise "it is not supported http method: <#{method}>"
       end
     end
 
