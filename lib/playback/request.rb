@@ -61,17 +61,17 @@ module Playback
 
       case method
       when 'GET'
-        http.get(uri.path + '?' + query, data)
+        http.get(path, data)
       when 'POST'
         http.post(uri.path, query, data)
       when 'PUT'
         http.put(uri.path, query, data)
       when 'DELETE'
-        http.delete(uri.path + '?' + query, data)
+        http.delete(path, data)
       when 'PATCH'
         http.patch(uri.path, query, data)
       when 'HEAD'
-        http.head(uri.path + '?' + query, data)
+        http.head(path, data)
       else
         raise "it is not supported http method: <#{method}>"
       end
