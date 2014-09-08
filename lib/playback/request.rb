@@ -56,7 +56,7 @@ module Playback
       end
 
       http = Net::HTTP.new(uri.host, uri.port)
-      query = uri.query.nil? ? '' : uri.query
+      query = uri.query ||= ''
       data = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
 
       case method
