@@ -12,9 +12,9 @@ supported log format: apache(common, combined and customized base on combined)
 ### as a command line tool
 ```sh
 playback 'http://httpbin.org' /path/to/access.log
-#=> { "method": "GET", "path": "/get", status: 200 }
-#=> { "method": "POST", "path": "/post?hoge=1", status: 200 }
-#=> { "method": "PUT", "path": "/put?foo=bar", status: 200 }
+#=> { "method": "GET", "path": "/get", "status": 200 }
+#=> { "method": "POST", "path": "/post?hoge=1", "status": 404 }
+#=> { "method": "PUT", "path": "/put?foo=bar", "status": 200 }
 #=> :
 #=> :
 ```
@@ -26,7 +26,7 @@ require 'playback'
 p = Playback::Request.new('http://httpbin.org')
 File.open '/path/to/access.log' do |file|
   file.each_line do |line|
-    puts p.run(line)               #=> { "method": "GET", "path": "/get", status: 200 }
+    puts p.run(line)               #=> { "method": "GET", "path": "/get", "status": 200 }
     puts p.run(line, 'net-http')   #=> #<Net::HTTPOK:0xb8309eb4>
   end
 end
