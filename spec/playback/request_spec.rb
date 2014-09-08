@@ -3,7 +3,7 @@ require 'playback/request'
 require 'json'
 
 describe Playback::Request do
-  let(:apache_log_playback) { Playback::Request.new('http://httpbin.org', 'apache') }
+  let(:apache_log_playback) { Playback::Request.new('http://httpbin.org') }
   let :apache_common_logs do
     {
       GET:    '127.0.0.1 - - [07/Jun/2014:14:58:55 +0900] "GET /get HTTP/1.1" 200 73',
