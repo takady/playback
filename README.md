@@ -1,6 +1,7 @@
 # Playback
 
-generate and execute http request from access log
+execute http request from access log
+supported log format: apache(common, combined and customized base on combined)
 
 ## Installation
 
@@ -25,7 +26,8 @@ require 'playback'
 p = Playback::Request.new('http://httpbin.org')
 File.open '/path/to/access.log' do |file|
   file.each_line do |line|
-    puts p.run(line)   #=> { "method": "GET", "path": "/get", status: 200 }
+    puts p.run(line)               #=> { "method": "GET", "path": "/get", status: 200 }
+    puts p.run(line, 'net-http')   #=> #<Net::HTTPOK:0xb8309eb4>
   end
 end
 ```
