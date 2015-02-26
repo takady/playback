@@ -1,7 +1,6 @@
 # Playback
 [![Build Status](https://travis-ci.org/takady/playback.svg?branch=master)](https://travis-ci.org/takady/playback) [![Code Climate](https://codeclimate.com/github/takady/playback/badges/gpa.svg)](https://codeclimate.com/github/takady/playback)  
-execute http request from access log  
-supported log format: apache(common, combined and customized base on combined)
+Execute http request from apache access log  
 
 ## Installation
 
