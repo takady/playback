@@ -1,4 +1,4 @@
-require "playback/parser"
+require 'apache_log/parser'
 require 'net/http'
 require 'json'
 
@@ -9,7 +9,8 @@ module Playback
 
     def initialize(base_uri)
       @base_uri = base_uri
-      @parser = Playback::Parser
+      @common_parser = ApacheLog::Parser.new('common')
+      @combined_parser = ApacheLog::Parser.new('combined')
     end
 
     def run(line, return_type='')
@@ -27,7 +28,7 @@ module Playback
           path: path,
           status: res.code.to_i,
         }
-        res = JSON.generate result
+        res = JSON.generate(result)
       end
 
       res
@@ -36,12 +37,14 @@ module Playback
       e.message
     end
 
+    private
+
     def parse(line)
       begin
-        @parser.parse(line.chomp, 'combined')
+        @combined_parser.parse(line.chomp)
       rescue
         begin
-          @parser.parse(line.chomp, 'common')
+          @common_parser.parse(line.chomp)
         rescue => e
           raise e
         end
@@ -76,7 +79,5 @@ module Playback
         raise "it is not supported http method: <#{method}>"
       end
     end
-
-    private :parse, :request
   end
 end

@@ -7,9 +7,9 @@ Gem::Specification.new do |spec|
   spec.name          = "playback"
   spec.version       = Playback::VERSION
   spec.authors       = ["Yuichi Takada"]
-  spec.email         = ["takadyy@gmail.com"]
-  spec.summary       = "generate and execute http request from access log"
-  spec.description   = "generate and execute http request from access log"
+  spec.email         = ["takadyuichi@gmail.com"]
+  spec.summary       = "Execute http request from apache access log"
+  spec.description   = spec.summary
   spec.homepage      = "https://github.com/takady/playback"
   spec.license       = "MIT"
 
@@ -21,4 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec"
+  spec.add_dependency "apache_log-parser", "3.1.0"
 end
