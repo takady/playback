@@ -7,74 +7,53 @@ module Playback
     DEFAULT_CONTENT_TYPE = 'application/text'
     DEFAULT_USER_AGENT = 'From Playback rubygems'
 
+    PARSER = ApacheLog::Parser
+
+    REQUEST_WITHOUT_BODY = %w(GET DELETE HEAD)
+    REQUEST_WITH_BODY = %w(POST PUT PATCH)
+
     def initialize(base_uri)
       @base_uri = base_uri
-      @common_parser = ApacheLog::Parser.new('common')
-      @combined_parser = ApacheLog::Parser.new('combined')
+      @common_parser = PARSER.new('common')
+      @combined_parser = PARSER.new('combined')
     end
 
     def run(line, return_type='')
-      parsed_line = parse(line)
-      method = parsed_line[:request][:method]
-      path   = parsed_line[:request][:path]
-      referer = parsed_line[:referer] ||= ''
+      parsed_line = parse_log(line)
+
+      method     = parsed_line[:request][:method]
+      path       = parsed_line[:request][:path]
+      referer    = parsed_line[:referer] ||= ''
       user_agent = parsed_line[:user_agent] ||= DEFAULT_USER_AGENT
 
-      res = request(method, path, referer, user_agent)
+      response = request(method, path, referer, user_agent)
 
-      unless (return_type == 'net-http')
-        result = {
-          method: method,
-          path: path,
-          status: res.code.to_i,
-        }
-        res = JSON.generate(result)
-      end
+      return response if return_type == 'net-http'
 
-      res
-
+      {method: method, path: path, status: response.code.to_i}.to_json
     rescue => e
       e.message
     end
 
     private
 
-    def parse(line)
+    def parse_log(line)
       begin
         @combined_parser.parse(line.chomp)
       rescue
-        begin
-          @common_parser.parse(line.chomp)
-        rescue => e
-          raise e
-        end
+        @common_parser.parse(line.chomp)
       end
     end
 
     def request(method, path, referer, user_agent)
-      begin
-        uri = URI.parse(@base_uri + path)
-      rescue
-        raise "it can not be recognized as a uri: <#{@base_uri + path}>"
-      end
-
+      uri = URI.parse("#{@base_uri}#{path}")
       http = Net::HTTP.new(uri.host, uri.port)
-      query = uri.query ||= ''
-      data = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
+      header = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
 
-      case method
-      when 'GET'
-        http.get(path, data)
-      when 'POST'
-        http.post(uri.path, query, data)
-      when 'PUT'
-        http.put(uri.path, query, data)
-      when 'DELETE'
-        http.delete(path, data)
-      when 'PATCH'
-        http.patch(uri.path, query, data)
-      when 'HEAD'
-        http.head(path, data)
+      if REQUEST_WITHOUT_BODY.include?(method)
+        http.send(method.downcase, path, header)
+      elsif REQUEST_WITH_BODY.include?(method)
+        http.send(method.downcase, uri.path, uri.query, header)
       else
         raise "it is not supported http method: <#{method}>"
       end
