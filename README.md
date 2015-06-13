@@ -1,6 +1,5 @@
-# Playback
-[![Build Status](https://travis-ci.org/takady/playback.svg?branch=master)](https://travis-ci.org/takady/playback) [![Code Climate](https://codeclimate.com/github/takady/playback/badges/gpa.svg)](https://codeclimate.com/github/takady/playback)  
-Execute http request from apache access log  
+# Playback [![Build Status](https://travis-ci.org/takady/playback.svg?branch=master)](https://travis-ci.org/takady/playback) [![Code Climate](https://codeclimate.com/github/takady/playback/badges/gpa.svg)](https://codeclimate.com/github/takady/playback)
+Execute http request from apache access log
 
 ## Installation
 
@@ -10,7 +9,7 @@ Execute http request from apache access log
 
 ### as a command line tool
 ```sh
-playback 'http://httpbin.org' /path/to/access.log
+$ playback 'http://httpbin.org' /path/to/access.log
 #=> { "method": "GET", "path": "/get", "status": 200 }
 #=> { "method": "POST", "path": "/post?hoge=1", "status": 404 }
 #=> { "method": "PUT", "path": "/put?foo=bar", "status": 200 }
