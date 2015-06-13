@@ -6,7 +6,11 @@ module Playback
   class Request
     DEFAULT_CONTENT_TYPE = 'application/text'
     DEFAULT_USER_AGENT = 'From Playback rubygems'
+
     PARSER = ApacheLog::Parser
+
+    REQUEST_WITHOUT_BODY = %w(GET DELETE HEAD)
+    REQUEST_WITH_BODY = %w(POST PUT PATCH)
 
     def initialize(base_uri)
       @base_uri = base_uri
@@ -15,7 +19,7 @@ module Playback
     end
 
     def run(line, return_type='')
-      parsed_line = parse(line)
+      parsed_line = parse_log(line)
 
       method     = parsed_line[:request][:method]
       path       = parsed_line[:request][:path]
@@ -33,42 +37,23 @@ module Playback
 
     private
 
-    def parse(line)
+    def parse_log(line)
       begin
         @combined_parser.parse(line.chomp)
       rescue
-        begin
-          @common_parser.parse(line.chomp)
-        rescue => e
-          raise e
-        end
+        @common_parser.parse(line.chomp)
       end
     end
 
     def request(method, path, referer, user_agent)
-      begin
-        uri = URI.parse(@base_uri + path)
-      rescue
-        raise "it can not be recognized as a uri: <#{@base_uri + path}>"
-      end
-
+      uri = URI.parse("#{@base_uri}#{path}")
       http = Net::HTTP.new(uri.host, uri.port)
-      query = uri.query ||= ''
       header = {'Content-Type' => DEFAULT_CONTENT_TYPE, 'Referer' => referer, 'User-Agent' => user_agent}
 
-      case method
-      when 'GET'
-        http.get(path, header)
-      when 'POST'
-        http.post(uri.path, query, header)
-      when 'PUT'
-        http.put(uri.path, query, header)
-      when 'DELETE'
-        http.delete(path, header)
-      when 'PATCH'
-        http.patch(uri.path, query, header)
-      when 'HEAD'
-        http.head(path, header)
+      if REQUEST_WITHOUT_BODY.include?(method)
+        http.send(method.downcase, path, header)
+      elsif REQUEST_WITH_BODY.include?(method)
+        http.send(method.downcase, uri.path, uri.query, header)
       else
         raise "it is not supported http method: <#{method}>"
       end
